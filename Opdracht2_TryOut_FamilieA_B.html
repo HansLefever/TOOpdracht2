@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>Opdracht 2</title>
+<style>
+:root{--green:#85d148;--text:#f5f7f2;--muted:#99a595;--panel:#0d120d;--line:#253025}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#000;color:var(--text);font-family:Arial,Helvetica,sans-serif;overscroll-behavior:none}
+body{min-height:100dvh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.035;background-image:radial-gradient(circle at 20% 30%,#fff 0 1px,transparent 1px),radial-gradient(circle at 75% 70%,#fff 0 1px,transparent 1px);background-size:4px 4px,5px 5px;mix-blend-mode:screen}
+.screen{display:none;min-height:100dvh;padding:20px}
+.screen.active{display:flex}
+#countdown{align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle at center,rgba(76,140,43,.18),transparent 43%),#000}
+.task{font-size:clamp(2rem,8vw,4rem);letter-spacing:.18em;text-transform:uppercase;font-weight:900}
+.count{font-size:clamp(7rem,32vw,15rem);font-weight:900;color:var(--green);line-height:1;margin-top:20px;text-shadow:0 0 40px rgba(133,209,72,.30)}
+.pulse{animation:pulse .75s ease}
+@keyframes pulse{0%{opacity:0;transform:scale(.62)}45%{opacity:1;transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+.app{width:min(100%,760px);margin:auto;display:flex;flex-direction:column;justify-content:center}
+.header{display:flex;justify-content:space-between;gap:12px;margin-bottom:16px}
+.brand{color:var(--green);font-size:.76rem;letter-spacing:.2em;text-transform:uppercase;font-weight:900}
+.counter{color:var(--muted)}
+.progress{height:5px;background:#182018;border-radius:99px;overflow:hidden;margin-bottom:18px}
+.progress div{height:100%;background:linear-gradient(90deg,#4d8f2d,var(--green));width:0;transition:width .45s cubic-bezier(.22,.61,.36,1);box-shadow:0 0 12px rgba(133,209,72,.35)}
+.card{background:linear-gradient(180deg,rgba(17,24,17,.98),rgba(10,14,10,.98));border:1px solid var(--line);border-radius:22px;padding:24px 20px;min-height:430px;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.55),0 0 36px rgba(133,209,72,.07)}
+.kicker{color:var(--green);letter-spacing:.18em;text-transform:uppercase;font-size:.75rem;font-weight:900}
+.question{font-size:clamp(1.45rem,5vw,2.1rem);line-height:1.2;margin:15px 0 24px}
+.options{display:grid;gap:12px;margin-top:auto}
+.option{display:flex;gap:12px;padding:15px 16px;background:#111811;border:1px solid var(--line);border-radius:14px;font-size:1.05rem}
+.letter{color:var(--green);font-weight:900;min-width:1.3em}
+.nav{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+button{border:0;border-radius:14px;padding:15px;font-size:1rem;font-weight:900;min-height:52px;transition:transform .12s ease,filter .12s ease}
+button:active{transform:scale(.98);filter:brightness(.92)}
+.primary{background:var(--green);color:#071007}
+.secondary{background:#182018;color:var(--text)}
+button:disabled{opacity:.35}
+.note,.version{color:var(--muted);text-align:center;font-size:.84rem}
+.version{margin-top:8px}
+#content{transition:opacity .28s ease,transform .28s cubic-bezier(.22,.61,.36,1);will-change:transform,opacity}
+.fade-left{opacity:0;transform:translateX(-34px)}
+.fade-right{opacity:0;transform:translateX(34px)}
+#finish{align-items:center;justify-content:center;text-align:center}
+.finish-box{width:min(100%,620px);background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:30px 22px}
+.finish-box h1{font-size:clamp(2rem,8vw,3.4rem)}
+.full{width:100%;margin-top:12px}
+@media(max-width:420px){
+  .screen{padding:14px}
+  .card{min-height:400px;padding:20px 16px}
+  .question{font-size:1.38rem}
+  .option{font-size:1rem;padding:14px}
+  .nav{gap:10px}
+}
+@media(max-height:680px){
+  .card{min-height:360px}
+  .question{margin-bottom:16px}
+  .option{padding:12px 14px}
+}
+</style>
+</head>
+<body>
+<audio id="relay" preload="auto" src="data:audio/mpeg;base64,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"></audio>
+
+<section id="countdown" class="screen active">
+  <div>
+    <div id="taskTitle" class="task">Opdracht 2 · Try-Out</div>
+    <div id="countNumber" class="count pulse">3</div>
+  </div>
+</section>
+
+<section id="quiz" class="screen">
+  <main class="app">
+    <div class="header">
+      <div id="brand" class="brand"></div>
+      <div id="counter" class="counter"></div>
+    </div>
+    <div class="progress"><div id="bar"></div></div>
+    <article class="card"><div id="content"></div></article>
+    <div class="nav">
+      <button id="prev" class="secondary">← Vorige</button>
+      <button id="next" class="primary">Volgende →</button>
+    </div>
+    <p class="note">Noteer jullie antwoord op de antwoordkaart.</p>
+    <p class="version">Try-Out · Versie 1.0</p>
+  </main>
+</section>
+
+<section id="finish" class="screen">
+  <div class="finish-box">
+    <div class="kicker">Opdracht voltooid</div>
+    <h1>Controleer jullie antwoordkaart.</h1>
+    <button id="decoder" class="primary full">Start Decoder →</button>
+    <button id="back" class="secondary full">← Terug naar vraag 10</button>
+    <p class="version">Try-Out · Versie 1.0</p>
+  </div>
+</section>
+
+<script>
+'use strict';
+
+/* =========================================================
+   VRAGEN EN ANTWOORDEN AANPASSEN
+   Wijzig hieronder enkel de teksten tussen aanhalingstekens.
+   ========================================================= */
+const OPDRACHT = {"titel": "Opdracht 2 · Try-Out", "versie": "Try-Out 1.0", "decoder_url": "https://hanslefever.github.io/Decoder/", "teams": {"A": {"naam": "Familie A · Camille & Jelle", "vragen": [{"vraag": "Welke hobby's noemt Margaux?", "A": "Wandelen, tekenen en lezen", "B": "Padel, tafeltennis en gamen", "C": "Voetbal, koken en schaken", "D": "Karting, lopen en lezen", "correct": "A"}, {"vraag": "Wie denkt Margaux dat de Mol zal zijn?", "A": "Jelle", "B": "Remy", "C": "Camille", "D": "Margaux", "correct": "C"}, {"vraag": "Waar is Margaux opvallend goed in?", "A": "Vlaggen van de wereld herkennen", "B": "Data onthouden", "C": "Karting", "D": "Haar tong oprollen", "correct": "B"}, {"vraag": "Wat is Margaux' grootste guilty pleasure?", "A": "Snoep eten", "B": "Vlogs kijken op YouTube", "C": "FC De Kampioenen kijken", "D": "True Crime", "correct": "D"}, {"vraag": "Wat wil Margaux zeker in 2027 kunnen?", "A": "12 km lopen", "B": "Een koersfiets kopen", "C": "Haar PR op 5 km verbeteren", "D": "Opnieuw naar Zuid-Afrika reizen", "correct": "A"}, {"vraag": "Welke hobby's noemt Remy?", "A": "Padel, tv-kijken en wandelen", "B": "Voetbal, koken, schaken, lopen en lezen", "C": "Karting, gamen en tafeltennis", "D": "Tekenen, lezen en wandelen", "correct": "B"}, {"vraag": "Waar is Remy opvallend goed in?", "A": "Veel vlaggen van de wereld kennen", "B": "Verjaardagen onthouden", "C": "Karting", "D": "Mensen overtuigen", "correct": "A"}, {"vraag": "Wat is Remy's grootste guilty pleasure?", "A": "True Crime", "B": "FC De Kampioenen kijken", "C": "Snoep eten", "D": "Vlogs kijken op YouTube", "correct": "C"}, {"vraag": "Wat kiest Remy: een vrijstelling voor zichzelf of €1.000 voor de groepspot?", "A": "€1.000 voor de groepspot", "B": "Vrijstelling", "C": "Hij laat de groep kiezen", "D": "Hij twijfelt tot het einde", "correct": "B"}, {"vraag": "Welke eigenschap zou Remy volgens zichzelf een goede Mol maken?", "A": "Chaotisch overkomen", "B": "Op de achtergrond blijven", "C": "Zich van de domme houden", "D": "Rust kunnen bewaren", "correct": "D"}]}, "B": {"naam": "Familie B · Margaux & Remy", "vragen": [{"vraag": "Welke hobby noemt Camille?", "A": "Wandelen", "B": "Padel", "C": "Karting", "D": "Schaken", "correct": "B"}, {"vraag": "Wie denkt Camille dat de Mol zal zijn?", "A": "Remy", "B": "Jelle", "C": "Margaux", "D": "Camille", "correct": "A"}, {"vraag": "Wat is Camille's grootste guilty pleasure?", "A": "True Crime", "B": "Snoep eten", "C": "Vlogs kijken op YouTube", "D": "FC De Kampioenen kijken", "correct": "C"}, {"vraag": "Wat kiest Camille: een vrijstelling voor zichzelf of €1.000 voor de groepspot?", "A": "Vrijstelling", "B": "€1.000 voor de groepspot", "C": "Ze laat de groep kiezen", "D": "Ze kiest willekeurig", "correct": "B"}, {"vraag": "Wat is volgens Camille haar minst goede karaktertrek?", "A": "Gierigheid", "B": "Snel geërgerd raken", "C": "Ongeduld", "D": "Koppigheid", "correct": "C"}, {"vraag": "Welke hobby's noemt Jelle?", "A": "Padel, tafeltennis, karting en gamen", "B": "Voetbal, koken, schaken en lopen", "C": "Wandelen, tekenen en lezen", "D": "Padel en tv-kijken", "correct": "A"}, {"vraag": "Waar is Jelle opvallend goed in?", "A": "Data onthouden", "B": "Karting", "C": "Vlaggen herkennen", "D": "Tafeltennis", "correct": "B"}, {"vraag": "Wat is Jelle's grootste guilty pleasure?", "A": "FC De Kampioenen kijken", "B": "True Crime", "C": "Snoep eten", "D": "Vlogs kijken op YouTube", "correct": "A"}, {"vraag": "Wat staat op Jelle's bucketlist voor 2027?", "A": "12 km kunnen lopen", "B": "Een verre reis maken", "C": "Een koersfiets kopen", "D": "Een PR op 5 km lopen", "correct": "C"}, {"vraag": "Welke eigenschap zou Jelle volgens zichzelf een goede Mol maken?", "A": "Hij kan rust bewaren", "B": "Hij blijft liever op de achtergrond", "C": "Hij kan zich van de domme houden", "D": "Hij komt chaotisch over", "correct": "B"}]}}};
+/* ================= EINDE VRAGENBLOK ================= */
+
+const params = new URLSearchParams(window.location.search);
+const rawTeam = (params.get('team') || 'A').toLowerCase();
+const teamAliases = {
+  'a':'A','familiea':'A','familie-a':'A',
+  'b':'B','familieb':'B','familie-b':'B'
+};
+const teamKey = teamAliases[rawTeam] || 'A';
+const team = OPDRACHT.teams[teamKey] || OPDRACHT.teams.A;
+let index = 0;
+
+const countdown = document.getElementById('countdown');
+const quiz = document.getElementById('quiz');
+const finish = document.getElementById('finish');
+const countNumber = document.getElementById('countNumber');
+const brand = document.getElementById('brand');
+const counter = document.getElementById('counter');
+const bar = document.getElementById('bar');
+const content = document.getElementById('content');
+const prev = document.getElementById('prev');
+const next = document.getElementById('next');
+const relay = document.getElementById('relay');
+
+brand.textContent = 'De Mol · ' + team.naam;
+
+function show(screen) {
+  countdown.classList.remove('active');
+  quiz.classList.remove('active');
+  finish.classList.remove('active');
+  screen.classList.add('active');
+}
+
+function pulseNumber(value) {
+  countNumber.textContent = value;
+  countNumber.classList.remove('pulse');
+  void countNumber.offsetWidth;
+  countNumber.classList.add('pulse');
+}
+
+function feedback() {
+  if ('vibrate' in navigator) navigator.vibrate(35);
+  try {
+    relay.pause();
+    relay.currentTime = 0;
+    relay.volume = 0.85;
+    relay.play().catch(function() {});
+  } catch (error) {}
+}
+
+function render(direction) {
+  content.classList.add(direction > 0 ? 'fade-right' : 'fade-left');
+
+  window.setTimeout(function() {
+    const q = team.vragen[index];
+    const letters = ['A','B','C','D'];
+
+    content.innerHTML =
+      '<div class="kicker">Vraag ' + (index + 1) + '</div>' +
+      '<h1 class="question">' + q.vraag + '</h1>' +
+      '<div class="options">' +
+      letters.map(function(letter) {
+        return '<div class="option"><span class="letter">' + letter +
+          '</span><span>' + q[letter] + '</span></div>';
+      }).join('') +
+      '</div>';
+
+    content.classList.remove('fade-left', 'fade-right');
+    counter.textContent = (index + 1) + ' / ' + team.vragen.length;
+    bar.style.width = ((index + 1) / team.vragen.length * 100) + '%';
+    prev.disabled = index === 0;
+    next.textContent = index === team.vragen.length - 1
+      ? 'Naar eindscherm →'
+      : 'Volgende →';
+  }, 220);
+}
+
+prev.addEventListener('click', function() {
+  if (index > 0) {
+    feedback();
+    index -= 1;
+    render(-1);
+  }
+});
+
+next.addEventListener('click', function() {
+  feedback();
+  if (index < team.vragen.length - 1) {
+    index += 1;
+    render(1);
+  } else {
+    show(finish);
+  }
+});
+
+document.getElementById('back').addEventListener('click', function() {
+  feedback();
+  index = team.vragen.length - 1;
+  show(quiz);
+  render(-1);
+});
+
+document.getElementById('decoder').addEventListener('click', function() {
+  feedback();
+  window.location.href = OPDRACHT.decoder_url;
+});
+
+function beginCountdown() {
+  pulseNumber('3');
+
+  window.setTimeout(function() {
+    pulseNumber('2');
+
+    window.setTimeout(function() {
+      pulseNumber('1');
+
+      window.setTimeout(function() {
+        pulseNumber('START');
+
+        window.setTimeout(function() {
+          show(quiz);
+          render(1);
+        }, 650);
+      }, 1000);
+    }, 1000);
+  }, 1000);
+}
+
+window.addEventListener('DOMContentLoaded', beginCountdown);
+</script>
+</body>
+</html>
