@@ -28,7 +28,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.035;
 .kicker{color:var(--green);letter-spacing:.18em;text-transform:uppercase;font-size:.75rem;font-weight:900}
 .question{font-size:clamp(1.45rem,5vw,2.1rem);line-height:1.2;margin:15px 0 24px}
 .options{display:grid;gap:12px;margin-top:auto}
-.option{display:flex;gap:12px;padding:15px 16px;background:#111811;border:1px solid var(--line);border-radius:14px;font-size:1.05rem}
+.option{display:flex;gap:12px;padding:15px 16px;background:#111811;border:1px solid var(--line);border-radius:14px;font-size:1.05rem;cursor:pointer;transition:border-color .15s ease,background .15s ease,transform .1s ease}.option:active{transform:scale(.99)}.option.selected{border-color:var(--green);background:#182718;box-shadow:0 0 0 2px rgba(133,209,72,.12) inset}
 .letter{color:var(--green);font-weight:900;min-width:1.3em}
 .nav{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
 button{border:0;border-radius:14px;padding:15px;font-size:1rem;font-weight:900;min-height:52px;transition:transform .12s ease,filter .12s ease}
@@ -81,18 +81,19 @@ button:disabled{opacity:.35}
       <button id="prev" class="secondary">← Vorige</button>
       <button id="next" class="primary">Volgende →</button>
     </div>
-    <p class="note">Noteer jullie antwoord op de antwoordkaart.</p>
-    <p class="version">Try-Out · Versie 2.1</p>
+    <p class="note">Kies één antwoord. Je keuze wordt automatisch geregistreerd.</p>
+    <p class="version">Try-Out · Versie 3.0</p>
   </main>
 </section>
 
 <section id="finish" class="screen">
   <div class="finish-box">
     <div class="kicker">Opdracht voltooid</div>
-    <h1>Controleer jullie antwoordkaart.</h1>
-    <button id="decoder" class="primary full">Start Decoder →</button>
-    <button id="back" class="secondary full">← Terug naar vraag 10</button>
-    <p class="version">Try-Out · Versie 2.1</p>
+    <h1 id="resultTitle">Resultaat</h1>
+    <div id="resultMessage"></div>
+    <img id="solutionImage" src="" alt="Oplossing" style="display:none;max-width:100%;height:auto;border-radius:16px;margin-top:18px">
+    <button id="restart" class="primary full" style="display:none">Opnieuw starten →</button>
+    <p class="version">Try-Out · Versie 3.0</p>
   </div>
 </section>
 
@@ -103,7 +104,7 @@ button:disabled{opacity:.35}
    VRAGEN EN ANTWOORDEN AANPASSEN
    Wijzig hieronder enkel de teksten tussen aanhalingstekens.
    ========================================================= */
-const OPDRACHT = {"titel":"Opdracht 2 · Try-Out","versie":"Try-Out 2.1","decoder_url":"https://hanslefever.github.io/Decoder/","teams":{"A":{"naam":"Familie A · Camille & Jelle","vragen":[{"vraag":"Je wint €100.000. Wat doet Remy als eerste?","A":"Reizen","B":"Investeren","C":"Huis verbouwen","D":"Familie verwennen","correct":"C"},{"vraag":"Margaux is één dag onzichtbaar. Wat zou ze doen?","A":"Mensen observeren","B":"Grappen uithalen","C":"Op avontuur gaan","D":"Helemaal niets","correct":"A"},{"vraag":"Waaraan kan Remy het moeilijkst weerstaan?","A":"Dessert","B":"Koopjes","C":"Vakanties boeken","D":"Een uitdaging","correct":"A"},{"vraag":"Waar is Margaux opvallend goed in, zonder dat iedereen dat weet?","A":"Veel vlaggen van de wereld kennen","B":"Karting","C":"Data onthouden, zoals verjaardagen en gebeurtenissen","D":"Erg lenig zijn","correct":"C"},{"vraag":"Welke superkracht zou Remy kiezen?","A":"Vliegen","B":"Onzichtbaar zijn","C":"Gedachten lezen","D":"Tijd stilzetten","correct":"D"},{"vraag":"Wat wil Margaux in 2027 zeker kunnen?","A":"Een koersfiets kopen","B":"12 km lopen","C":"Haar PR op 5 km verbeteren","D":"Een verre reis maken","correct":"B"},{"vraag":"Remy krijgt onverwacht een vrije dag. Wat doet hij waarschijnlijk?","A":"Sporten","B":"Uitslapen","C":"Afspreken met vrienden","D":"Een klus afwerken","correct":"D"},{"vraag":"Waar krijgt Margaux energie van?","A":"Mensen","B":"Sport","C":"Uitdagingen","D":"Rust","correct":"D"},{"vraag":"Waar is Remy opvallend goed in, zonder dat iedereen dat weet?","A":"Veel vlaggen van de wereld kennen","B":"Data onthouden","C":"Karting","D":"Erg lenig zijn","correct":"A"},{"vraag":"Welke nieuwe hobby zou Margaux kiezen?","A":"Fotografie","B":"Duiken","C":"Schilderen","D":"Koken","correct":"C"},{"vraag":"Waar kan Remy echt niet tegen?","A":"Liegen","B":"Rommel en wanorde","C":"Dingen die over datum zijn","D":"Mensen die zagen en klagen over alle mogelijke onderwerpen","correct":"D"},{"vraag":"Vrijstelling voor zichzelf of €1.000 voor de groepspot: wat kiest Margaux?","A":"Vrijstelling","B":"€1.000 voor de groepspot","C":"Ze twijfelt tot het einde","D":"Afhankelijk van de situatie","correct":"B"},{"vraag":"Wat wil Remy in 2027 bereiken?","A":"12 km kunnen lopen","B":"Een koersfiets kopen","C":"Zijn PR op 5 km verbeteren","D":"Een verre reis maken","correct":"C"},{"vraag":"Wat bewondert Margaux bij anderen vooral?","A":"Humor","B":"Eerlijkheid","C":"Creativiteit","D":"Doorzettingsvermogen","correct":"D"},{"vraag":"Wat is Remy's grootste guilty pleasure?","A":"True Crime","B":"FC De Kampioenen kijken","C":"Snoep eten","D":"Vlogs kijken op YouTube","correct":"C"},{"vraag":"Van welke vakantie droomt Margaux het meest?","A":"Een strandvakantie","B":"Een roadtrip","C":"Een citytrip","D":"Een vakantie in de bergen","correct":"B"}]},"B":{"naam":"Familie B · Margaux & Remy","vragen":[{"vraag":"Waar heeft Jelle het meeste moeite mee?","A":"Verliezen","B":"Wachten","C":"Stilzitten","D":"Vroeg opstaan","correct":"A"},{"vraag":"Waar is Camille opvallend goed in, zonder dat iedereen dat weet?","A":"Karting","B":"Data onthouden","C":"Veel vlaggen van de wereld kennen","D":"Ze is erg elastisch/lenig","correct":"D"},{"vraag":"Je wint €100.000. Wat doet Jelle als eerste?","A":"Reizen","B":"Investeren","C":"Huis verbouwen","D":"Familie verwennen","correct":"A"},{"vraag":"Camille is één dag onzichtbaar. Wat zou ze doen?","A":"Mensen observeren","B":"Grappen uithalen","C":"Op avontuur gaan","D":"Helemaal niets","correct":"B"},{"vraag":"Waar is Jelle opvallend goed in, zonder dat iedereen dat weet?","A":"Data onthouden","B":"Karting","C":"Veel vlaggen van de wereld kennen","D":"Erg lenig zijn","correct":"B"},{"vraag":"Wat staat op Camille haar bucketlist voor 2027?","A":"Een verre reis, bijvoorbeeld opnieuw naar Zuid-Afrika","B":"12 km kunnen lopen","C":"Een koersfiets kopen","D":"Een PR op 5 km lopen","correct":"A"},{"vraag":"Welke vakantie kiest Jelle het liefst?","A":"Bergen","B":"Strand","C":"Rondreis","D":"Citytrip","correct":"B"},{"vraag":"Wat koopt Camille spontaan?","A":"Boeken","B":"Kleding","C":"Gadgets","D":"Lekker eten","correct":"B"},{"vraag":"Wat is Jelle's grootste guilty pleasure?","A":"FC De Kampioenen kijken","B":"True Crime","C":"Snoep eten","D":"Vlogs kijken op YouTube","correct":"A"},{"vraag":"Waar kan Camille echt niet tegen?","A":"Rommel en wanorde","B":"Liegen","C":"Dingen die over datum zijn","D":"Mensen die zagen en klagen","correct":"B"},{"vraag":"Aan welke soort opdracht zou Jelle het liefst deelnemen?","A":"Logica centraal staat","B":"Snelheid belangrijk is","C":"Samenwerking nodig is","D":"Durf gevraagd wordt","correct":"D"},{"vraag":"Je wint €100.000. Wat doet Camille als eerste?","A":"Reizen","B":"Investeren","C":"Huis verbouwen","D":"Familie verwennen","correct":"D"},{"vraag":"Wat staat op Jelle's bucketlist voor 2027?","A":"12 km kunnen lopen","B":"Een verre reis maken","C":"Een koersfiets kopen","D":"Een PR op 5 km lopen","correct":"C"},{"vraag":"Welke nieuwe hobby zou Camille kiezen?","A":"Fotografie","B":"Duiken","C":"Schilderen","D":"Koken","correct":"A"},{"vraag":"Jelle krijgt onverwacht een vrije dag. Wat doet hij waarschijnlijk?","A":"Sporten","B":"Uitslapen","C":"Afspreken met vrienden","D":"Een klus afwerken","correct":"B"},{"vraag":"Vrijstelling voor zichzelf of €1.000 voor de groepspot: wat kiest Camille?","A":"Vrijstelling","B":"€1.000 voor de groepspot","C":"Ze twijfelt tot het einde","D":"Afhankelijk van de situatie","correct":"B"}]}}};
+const OPDRACHT = {"titel":"Opdracht 2 · Try-Out","versie":"Try-Out 3.0","oplossing_url":"https://hanslefever.github.io/Decoder/solutions/oplossing.png","teams":{"A":{"naam":"Familie A · Camille & Jelle","vragen":[{"vraag":"Je wint €100.000. Wat doet Remy als eerste?","A":"Reizen","B":"Investeren","C":"Huis verbouwen","D":"Familie verwennen","correct":"C"},{"vraag":"Margaux is één dag onzichtbaar. Wat zou ze doen?","A":"Mensen observeren","B":"Grappen uithalen","C":"Op avontuur gaan","D":"Helemaal niets","correct":"A"},{"vraag":"Waaraan kan Remy het moeilijkst weerstaan?","A":"Dessert","B":"Koopjes","C":"Vakanties boeken","D":"Een uitdaging","correct":"A"},{"vraag":"Waar is Margaux opvallend goed in, zonder dat iedereen dat weet?","A":"Veel vlaggen van de wereld kennen","B":"Karting","C":"Data onthouden, zoals verjaardagen en gebeurtenissen","D":"Erg lenig zijn","correct":"C"},{"vraag":"Welke superkracht zou Remy kiezen?","A":"Vliegen","B":"Onzichtbaar zijn","C":"Gedachten lezen","D":"Tijd stilzetten","correct":"D"},{"vraag":"Wat wil Margaux in 2027 zeker kunnen?","A":"Een koersfiets kopen","B":"12 km lopen","C":"Haar PR op 5 km verbeteren","D":"Een verre reis maken","correct":"B"},{"vraag":"Remy krijgt onverwacht een vrije dag. Wat doet hij waarschijnlijk?","A":"Sporten","B":"Uitslapen","C":"Afspreken met vrienden","D":"Een klus afwerken","correct":"D"},{"vraag":"Waar krijgt Margaux energie van?","A":"Mensen","B":"Sport","C":"Uitdagingen","D":"Rust","correct":"D"},{"vraag":"Waar is Remy opvallend goed in, zonder dat iedereen dat weet?","A":"Veel vlaggen van de wereld kennen","B":"Data onthouden","C":"Karting","D":"Erg lenig zijn","correct":"A"},{"vraag":"Welke nieuwe hobby zou Margaux kiezen?","A":"Fotografie","B":"Duiken","C":"Schilderen","D":"Koken","correct":"C"},{"vraag":"Waar kan Remy echt niet tegen?","A":"Liegen","B":"Rommel en wanorde","C":"Dingen die over datum zijn","D":"Mensen die zagen en klagen over alle mogelijke onderwerpen","correct":"D"},{"vraag":"Vrijstelling voor zichzelf of €1.000 voor de groepspot: wat kiest Margaux?","A":"Vrijstelling","B":"€1.000 voor de groepspot","C":"Ze twijfelt tot het einde","D":"Afhankelijk van de situatie","correct":"B"},{"vraag":"Wat wil Remy in 2027 bereiken?","A":"12 km kunnen lopen","B":"Een koersfiets kopen","C":"Zijn PR op 5 km verbeteren","D":"Een verre reis maken","correct":"C"},{"vraag":"Wat bewondert Margaux bij anderen vooral?","A":"Humor","B":"Eerlijkheid","C":"Creativiteit","D":"Doorzettingsvermogen","correct":"D"},{"vraag":"Wat is Remy's grootste guilty pleasure?","A":"True Crime","B":"FC De Kampioenen kijken","C":"Snoep eten","D":"Vlogs kijken op YouTube","correct":"C"},{"vraag":"Van welke vakantie droomt Margaux het meest?","A":"Een strandvakantie","B":"Een roadtrip","C":"Een citytrip","D":"Een vakantie in de bergen","correct":"B"}]},"B":{"naam":"Familie B · Margaux & Remy","vragen":[{"vraag":"Waar heeft Jelle het meeste moeite mee?","A":"Verliezen","B":"Wachten","C":"Stilzitten","D":"Vroeg opstaan","correct":"A"},{"vraag":"Waar is Camille opvallend goed in, zonder dat iedereen dat weet?","A":"Karting","B":"Data onthouden","C":"Veel vlaggen van de wereld kennen","D":"Ze is erg elastisch/lenig","correct":"D"},{"vraag":"Je wint €100.000. Wat doet Jelle als eerste?","A":"Reizen","B":"Investeren","C":"Huis verbouwen","D":"Familie verwennen","correct":"A"},{"vraag":"Camille is één dag onzichtbaar. Wat zou ze doen?","A":"Mensen observeren","B":"Grappen uithalen","C":"Op avontuur gaan","D":"Helemaal niets","correct":"B"},{"vraag":"Waar is Jelle opvallend goed in, zonder dat iedereen dat weet?","A":"Data onthouden","B":"Karting","C":"Veel vlaggen van de wereld kennen","D":"Erg lenig zijn","correct":"B"},{"vraag":"Wat staat op Camille haar bucketlist voor 2027?","A":"Een verre reis, bijvoorbeeld opnieuw naar Zuid-Afrika","B":"12 km kunnen lopen","C":"Een koersfiets kopen","D":"Een PR op 5 km lopen","correct":"A"},{"vraag":"Welke vakantie kiest Jelle het liefst?","A":"Bergen","B":"Strand","C":"Rondreis","D":"Citytrip","correct":"B"},{"vraag":"Wat koopt Camille spontaan?","A":"Boeken","B":"Kleding","C":"Gadgets","D":"Lekker eten","correct":"B"},{"vraag":"Wat is Jelle's grootste guilty pleasure?","A":"FC De Kampioenen kijken","B":"True Crime","C":"Snoep eten","D":"Vlogs kijken op YouTube","correct":"A"},{"vraag":"Waar kan Camille echt niet tegen?","A":"Rommel en wanorde","B":"Liegen","C":"Dingen die over datum zijn","D":"Mensen die zagen en klagen","correct":"B"},{"vraag":"Aan welke soort opdracht zou Jelle het liefst deelnemen?","A":"Logica centraal staat","B":"Snelheid belangrijk is","C":"Samenwerking nodig is","D":"Durf gevraagd wordt","correct":"D"},{"vraag":"Je wint €100.000. Wat doet Camille als eerste?","A":"Reizen","B":"Investeren","C":"Huis verbouwen","D":"Familie verwennen","correct":"D"},{"vraag":"Wat staat op Jelle's bucketlist voor 2027?","A":"12 km kunnen lopen","B":"Een verre reis maken","C":"Een koersfiets kopen","D":"Een PR op 5 km lopen","correct":"C"},{"vraag":"Welke nieuwe hobby zou Camille kiezen?","A":"Fotografie","B":"Duiken","C":"Schilderen","D":"Koken","correct":"A"},{"vraag":"Jelle krijgt onverwacht een vrije dag. Wat doet hij waarschijnlijk?","A":"Sporten","B":"Uitslapen","C":"Afspreken met vrienden","D":"Een klus afwerken","correct":"B"},{"vraag":"Vrijstelling voor zichzelf of €1.000 voor de groepspot: wat kiest Camille?","A":"Vrijstelling","B":"€1.000 voor de groepspot","C":"Ze twijfelt tot het einde","D":"Afhankelijk van de situatie","correct":"B"}]}}};
 
 /* ================= EINDE VRAGENBLOK ================= */
 
@@ -116,6 +117,7 @@ const teamAliases = {
 const teamKey = teamAliases[rawTeam] || 'A';
 const team = OPDRACHT.teams[teamKey] || OPDRACHT.teams.A;
 let index = 0;
+let answers = new Array(team.vragen.length).fill(null);
 
 const countdown = document.getElementById('countdown');
 const quiz = document.getElementById('quiz');
@@ -128,6 +130,10 @@ const content = document.getElementById('content');
 const prev = document.getElementById('prev');
 const next = document.getElementById('next');
 const relay = document.getElementById('relay');
+const resultTitle = document.getElementById('resultTitle');
+const resultMessage = document.getElementById('resultMessage');
+const solutionImage = document.getElementById('solutionImage');
+const restart = document.getElementById('restart');
 
 brand.textContent = 'De Mol · ' + team.naam;
 
@@ -167,17 +173,29 @@ function render(direction) {
       '<h1 class="question">' + q.vraag + '</h1>' +
       '<div class="options">' +
       letters.map(function(letter) {
-        return '<div class="option"><span class="letter">' + letter +
-          '</span><span>' + q[letter] + '</span></div>';
+        const selected = answers[index] === letter ? ' selected' : '';
+        return '<button type="button" class="option' + selected + '" data-letter="' + letter + '">' +
+          '<span class="letter">' + letter + '</span><span>' + q[letter] + '</span></button>';
       }).join('') +
       '</div>';
+
+    content.querySelectorAll('.option').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        feedback();
+        answers[index] = btn.dataset.letter;
+        content.querySelectorAll('.option').forEach(function(x){ x.classList.remove('selected'); });
+        btn.classList.add('selected');
+        next.disabled = false;
+      });
+    });
 
     content.classList.remove('fade-left', 'fade-right');
     counter.textContent = (index + 1) + ' / ' + team.vragen.length;
     bar.style.width = ((index + 1) / team.vragen.length * 100) + '%';
     prev.disabled = index === 0;
+    next.disabled = answers[index] === null;
     next.textContent = index === team.vragen.length - 1
-      ? 'Naar eindscherm →'
+      ? 'Bekijk resultaat →'
       : 'Volgende →';
   }, 220);
 }
@@ -191,26 +209,45 @@ prev.addEventListener('click', function() {
 });
 
 next.addEventListener('click', function() {
+  if (answers[index] === null) return;
   feedback();
   if (index < team.vragen.length - 1) {
     index += 1;
     render(1);
   } else {
-    show(finish);
+    showResult();
   }
 });
 
-document.getElementById('back').addEventListener('click', function() {
+function showResult() {
+  let errors = 0;
+  for (let i = 0; i < team.vragen.length; i++) {
+    if (answers[i] !== team.vragen[i].correct) errors++;
+  }
+
+  show(finish);
+  solutionImage.style.display = 'none';
+  solutionImage.src = '';
+  restart.style.display = 'none';
+
+  if (errors === 0) {
+    resultTitle.textContent = '0 fouten';
+    resultMessage.innerHTML = '<p>Alles juist. Hier is jullie oplossing.</p>';
+    solutionImage.src = OPDRACHT.oplossing_url;
+    solutionImage.style.display = 'block';
+  } else {
+    resultTitle.textContent = errors + ' fout' + (errors === 1 ? '' : 'en');
+    resultMessage.innerHTML = '<p>Start opnieuw en probeer alle 16 vragen juist te beantwoorden.</p>';
+    restart.style.display = 'block';
+  }
+}
+
+restart.addEventListener('click', function() {
   feedback();
-  index = team.vragen.length - 1;
+  answers = new Array(team.vragen.length).fill(null);
+  index = 0;
   show(quiz);
   render(-1);
-});
-
-document.getElementById('decoder').addEventListener('click', function() {
-  feedback();
-  const separator = OPDRACHT.decoder_url.includes('?') ? '&' : '?';
-  window.location.href = OPDRACHT.decoder_url + separator + 'team=' + encodeURIComponent(teamKey);
 });
 
 function beginCountdown() {
