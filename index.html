@@ -3,121 +3,238 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#000">
-<title>Decoder - Try-Out</title>
+<meta name="theme-color" content="#000000">
+<title>Opdracht 2</title>
 <style>
-:root{--g:#85d148;--bg:#000;--panel:#101510;--txt:#f4f6f2;--muted:#9aa699;--bad:#ff6868}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font-family:Arial,Helvetica,sans-serif}
-header{padding:18px 16px;background:#080b08;border-bottom:1px solid #263026}
-header h1{margin:0;font-size:1.35rem}header .v{color:var(--g);font-size:.78rem;margin-top:4px}
-main{max-width:760px;margin:auto;padding:14px}
-.card{background:var(--panel);border:1px solid #263026;border-radius:18px;padding:16px;margin:12px 0}
-.badge{display:inline-block;background:#1a241a;color:var(--g);border-radius:999px;padding:6px 10px;font-weight:800;margin-bottom:10px}
-button,.button{display:inline-block;border:0;border-radius:12px;background:var(--g);color:#061006;padding:13px 15px;font-weight:900;font-size:1rem;text-decoration:none}
-.secondary{background:#202820;color:var(--txt)}
-.actions{display:flex;gap:10px;flex-wrap:wrap}input[type=file]{display:none}
-video,canvas{width:100%;border-radius:12px;background:#222;margin-top:12px;max-height:65vh;object-fit:contain}
-#result{font-size:1.25rem;font-weight:900;white-space:pre-line}.ok{color:var(--g)}.bad{color:var(--bad)}
-.small{color:var(--muted);font-size:.86rem;overflow-wrap:anywhere;margin-top:8px}
+:root{--green:#85d148;--text:#f5f7f2;--muted:#99a595;--panel:#0d120d;--line:#253025}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#000;color:var(--text);font-family:Arial,Helvetica,sans-serif;overscroll-behavior:none}
+body{min-height:100dvh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.035;background-image:radial-gradient(circle at 20% 30%,#fff 0 1px,transparent 1px),radial-gradient(circle at 75% 70%,#fff 0 1px,transparent 1px);background-size:4px 4px,5px 5px;mix-blend-mode:screen}
+.screen{display:none;min-height:100dvh;padding:20px}
+.screen.active{display:flex}
+#countdown{align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle at center,rgba(76,140,43,.18),transparent 43%),#000}
+.task{font-size:clamp(2rem,8vw,4rem);letter-spacing:.18em;text-transform:uppercase;font-weight:900}
+.count{font-size:clamp(7rem,32vw,15rem);font-weight:900;color:var(--green);line-height:1;margin-top:20px;text-shadow:0 0 40px rgba(133,209,72,.30)}
+.pulse{animation:pulse .75s ease}
+@keyframes pulse{0%{opacity:0;transform:scale(.62)}45%{opacity:1;transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+.app{width:min(100%,760px);margin:auto;display:flex;flex-direction:column;justify-content:center}
+.header{display:flex;justify-content:space-between;gap:12px;margin-bottom:16px}
+.brand{color:var(--green);font-size:.76rem;letter-spacing:.2em;text-transform:uppercase;font-weight:900}
+.counter{color:var(--muted)}
+.progress{height:5px;background:#182018;border-radius:99px;overflow:hidden;margin-bottom:18px}
+.progress div{height:100%;background:linear-gradient(90deg,#4d8f2d,var(--green));width:0;transition:width .45s cubic-bezier(.22,.61,.36,1);box-shadow:0 0 12px rgba(133,209,72,.35)}
+.card{background:linear-gradient(180deg,rgba(17,24,17,.98),rgba(10,14,10,.98));border:1px solid var(--line);border-radius:22px;padding:24px 20px;min-height:430px;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.55),0 0 36px rgba(133,209,72,.07)}
+.kicker{color:var(--green);letter-spacing:.18em;text-transform:uppercase;font-size:.75rem;font-weight:900}
+.question{font-size:clamp(1.45rem,5vw,2.1rem);line-height:1.2;margin:15px 0 24px}
+.options{display:grid;gap:12px;margin-top:auto}
+.option{display:flex;gap:12px;padding:15px 16px;background:#111811;border:1px solid var(--line);border-radius:14px;font-size:1.05rem}
+.letter{color:var(--green);font-weight:900;min-width:1.3em}
+.nav{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+button{border:0;border-radius:14px;padding:15px;font-size:1rem;font-weight:900;min-height:52px;transition:transform .12s ease,filter .12s ease}
+button:active{transform:scale(.98);filter:brightness(.92)}
+.primary{background:var(--green);color:#071007}
+.secondary{background:#182018;color:var(--text)}
+button:disabled{opacity:.35}
+.note,.version{color:var(--muted);text-align:center;font-size:.84rem}
+.version{margin-top:8px}
+#content{transition:opacity .28s ease,transform .28s cubic-bezier(.22,.61,.36,1);will-change:transform,opacity}
+.fade-left{opacity:0;transform:translateX(-34px)}
+.fade-right{opacity:0;transform:translateX(34px)}
+#finish{align-items:center;justify-content:center;text-align:center}
+.finish-box{width:min(100%,620px);background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:30px 22px}
+.finish-box h1{font-size:clamp(2rem,8vw,3.4rem)}
+.full{width:100%;margin-top:12px}
+@media(max-width:420px){
+  .screen{padding:14px}
+  .card{min-height:400px;padding:20px 16px}
+  .question{font-size:1.38rem}
+  .option{font-size:1rem;padding:14px}
+  .nav{gap:10px}
+}
+@media(max-height:680px){
+  .card{min-height:360px}
+  .question{margin-bottom:16px}
+  .option{padding:12px 14px}
+}
 </style>
 </head>
 <body>
-<header><h1>DECODER - Try-Out</h1><div class="v">16 vragen · versie 2.0</div></header>
-<main>
-<section class="card">
-<div id="teamBadge" class="badge">Familie</div>
-<p>Fotografeer de volledige antwoordkaart. Zorg dat alle vier zwarte hoekmarkeringen zichtbaar zijn.</p>
-<div class="actions">
-<button id="cameraBtn">Camera openen</button>
-<label class="button secondary">Foto nemen/kiezen<input id="fileInput" type="file" accept="image/*" capture="environment"></label>
-<button id="snapBtn" class="secondary" hidden>Decodeer beeld</button>
-</div>
-<video id="video" playsinline autoplay hidden></video>
-<canvas id="canvas"></canvas>
+<audio id="relay" preload="auto" src="data:audio/mpeg;base64,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"></audio>
+
+<section id="countdown" class="screen active">
+  <div>
+    <div id="taskTitle" class="task">Opdracht 2 · Try-Out</div>
+    <div id="countNumber" class="count pulse">3</div>
+  </div>
 </section>
-<section class="card"><div id="result">Nog geen antwoordkaart gescand.</div><div id="details" class="small"></div></section>
-</main>
+
+<section id="quiz" class="screen">
+  <main class="app">
+    <div class="header">
+      <div id="brand" class="brand"></div>
+      <div id="counter" class="counter"></div>
+    </div>
+    <div class="progress"><div id="bar"></div></div>
+    <article class="card"><div id="content"></div></article>
+    <div class="nav">
+      <button id="prev" class="secondary">← Vorige</button>
+      <button id="next" class="primary">Volgende →</button>
+    </div>
+    <p class="note">Noteer jullie antwoord op de antwoordkaart.</p>
+    <p class="version">Try-Out · Versie 1.0</p>
+  </main>
+</section>
+
+<section id="finish" class="screen">
+  <div class="finish-box">
+    <div class="kicker">Opdracht voltooid</div>
+    <h1>Controleer jullie antwoordkaart.</h1>
+    <button id="decoder" class="primary full">Start Decoder →</button>
+    <button id="back" class="secondary full">← Terug naar vraag 10</button>
+    <p class="version">Try-Out · Versie 1.0</p>
+  </div>
+</section>
+
 <script>
 'use strict';
-const EXPECTED={A:"CAACDBDDACDBCDCB",B:"ADABBABBABDDCABB"};
-const params=new URLSearchParams(location.search);
-const requestedTeam=(params.get("team")||"").toUpperCase();
-const TEAM=requestedTeam==="B"?"B":"A";
-const target=EXPECTED[TEAM];
-document.getElementById("teamBadge").textContent="Familie "+TEAM+" · via link geselecteerd";
 
-const CARD_W=1240,CARD_H=1754,MARK=70;
-// Virtual coordinates correspond to the PDF card layout.
-// Two question columns, 8 rows each, 4 bubbles A-D.
-const qpos=[];
-const xCols=[[248,343,437,531],[815,909,1004,1098]], y0=505, rowGap=115;
-for(let col=0;col<2;col++) for(let r=0;r<8;r++){
-  const arr=[]; for(let j=0;j<4;j++) arr.push([xCols[col][j],y0+r*rowGap]);
-  qpos.push(arr);
+/* =========================================================
+   VRAGEN EN ANTWOORDEN AANPASSEN
+   Wijzig hieronder enkel de teksten tussen aanhalingstekens.
+   ========================================================= */
+const OPDRACHT = {"titel":"Opdracht 2 · Try-Out","versie":"Try-Out 2.1","decoder_url":"https://hanslefever.github.io/Decoder/","teams":{"A":{"naam":"Familie A · Camille & Jelle","vragen":[{"vraag":"Je wint €100.000. Wat doet Remy als eerste?","A":"Reizen","B":"Investeren","C":"Huis verbouwen","D":"Familie verwennen","correct":"C"},{"vraag":"Margaux is één dag onzichtbaar. Wat zou ze doen?","A":"Mensen observeren","B":"Grappen uithalen","C":"Op avontuur gaan","D":"Helemaal niets","correct":"A"},{"vraag":"Waaraan kan Remy het moeilijkst weerstaan?","A":"Dessert","B":"Koopjes","C":"Vakanties boeken","D":"Een uitdaging","correct":"A"},{"vraag":"Waar is Margaux opvallend goed in, zonder dat iedereen dat weet?","A":"Veel vlaggen van de wereld kennen","B":"Karting","C":"Data onthouden, zoals verjaardagen en gebeurtenissen","D":"Erg lenig zijn","correct":"C"},{"vraag":"Welke superkracht zou Remy kiezen?","A":"Vliegen","B":"Onzichtbaar zijn","C":"Gedachten lezen","D":"Tijd stilzetten","correct":"D"},{"vraag":"Wat wil Margaux in 2027 zeker kunnen?","A":"Een koersfiets kopen","B":"12 km lopen","C":"Haar PR op 5 km verbeteren","D":"Een verre reis maken","correct":"B"},{"vraag":"Remy krijgt onverwacht een vrije dag. Wat doet hij waarschijnlijk?","A":"Sporten","B":"Uitslapen","C":"Afspreken met vrienden","D":"Een klus afwerken","correct":"D"},{"vraag":"Waar krijgt Margaux energie van?","A":"Mensen","B":"Sport","C":"Uitdagingen","D":"Rust","correct":"D"},{"vraag":"Waar is Remy opvallend goed in, zonder dat iedereen dat weet?","A":"Veel vlaggen van de wereld kennen","B":"Data onthouden","C":"Karting","D":"Erg lenig zijn","correct":"A"},{"vraag":"Welke nieuwe hobby zou Margaux kiezen?","A":"Fotografie","B":"Duiken","C":"Schilderen","D":"Koken","correct":"C"},{"vraag":"Waar kan Remy echt niet tegen?","A":"Liegen","B":"Rommel en wanorde","C":"Dingen die over datum zijn","D":"Mensen die zagen en klagen over alle mogelijke onderwerpen","correct":"D"},{"vraag":"Vrijstelling voor zichzelf of €1.000 voor de groepspot: wat kiest Margaux?","A":"Vrijstelling","B":"€1.000 voor de groepspot","C":"Ze twijfelt tot het einde","D":"Afhankelijk van de situatie","correct":"B"},{"vraag":"Wat wil Remy in 2027 bereiken?","A":"12 km kunnen lopen","B":"Een koersfiets kopen","C":"Zijn PR op 5 km verbeteren","D":"Een verre reis maken","correct":"C"},{"vraag":"Wat bewondert Margaux bij anderen vooral?","A":"Humor","B":"Eerlijkheid","C":"Creativiteit","D":"Doorzettingsvermogen","correct":"D"},{"vraag":"Wat is Remy's grootste guilty pleasure?","A":"True Crime","B":"FC De Kampioenen kijken","C":"Snoep eten","D":"Vlogs kijken op YouTube","correct":"C"},{"vraag":"Van welke vakantie droomt Margaux het meest?","A":"Een strandvakantie","B":"Een roadtrip","C":"Een citytrip","D":"Een vakantie in de bergen","correct":"B"}]},"B":{"naam":"Familie B · Margaux & Remy","vragen":[{"vraag":"Waar heeft Jelle het meeste moeite mee?","A":"Verliezen","B":"Wachten","C":"Stilzitten","D":"Vroeg opstaan","correct":"A"},{"vraag":"Waar is Camille opvallend goed in, zonder dat iedereen dat weet?","A":"Karting","B":"Data onthouden","C":"Veel vlaggen van de wereld kennen","D":"Ze is erg elastisch/lenig","correct":"D"},{"vraag":"Je wint €100.000. Wat doet Jelle als eerste?","A":"Reizen","B":"Investeren","C":"Huis verbouwen","D":"Familie verwennen","correct":"A"},{"vraag":"Camille is één dag onzichtbaar. Wat zou ze doen?","A":"Mensen observeren","B":"Grappen uithalen","C":"Op avontuur gaan","D":"Helemaal niets","correct":"B"},{"vraag":"Waar is Jelle opvallend goed in, zonder dat iedereen dat weet?","A":"Data onthouden","B":"Karting","C":"Veel vlaggen van de wereld kennen","D":"Erg lenig zijn","correct":"B"},{"vraag":"Wat staat op Camille haar bucketlist voor 2027?","A":"Een verre reis, bijvoorbeeld opnieuw naar Zuid-Afrika","B":"12 km kunnen lopen","C":"Een koersfiets kopen","D":"Een PR op 5 km lopen","correct":"A"},{"vraag":"Welke vakantie kiest Jelle het liefst?","A":"Bergen","B":"Strand","C":"Rondreis","D":"Citytrip","correct":"B"},{"vraag":"Wat koopt Camille spontaan?","A":"Boeken","B":"Kleding","C":"Gadgets","D":"Lekker eten","correct":"B"},{"vraag":"Wat is Jelle's grootste guilty pleasure?","A":"FC De Kampioenen kijken","B":"True Crime","C":"Snoep eten","D":"Vlogs kijken op YouTube","correct":"A"},{"vraag":"Waar kan Camille echt niet tegen?","A":"Rommel en wanorde","B":"Liegen","C":"Dingen die over datum zijn","D":"Mensen die zagen en klagen","correct":"B"},{"vraag":"Aan welke soort opdracht zou Jelle het liefst deelnemen?","A":"Logica centraal staat","B":"Snelheid belangrijk is","C":"Samenwerking nodig is","D":"Durf gevraagd wordt","correct":"D"},{"vraag":"Je wint €100.000. Wat doet Camille als eerste?","A":"Reizen","B":"Investeren","C":"Huis verbouwen","D":"Familie verwennen","correct":"D"},{"vraag":"Wat staat op Jelle's bucketlist voor 2027?","A":"12 km kunnen lopen","B":"Een verre reis maken","C":"Een koersfiets kopen","D":"Een PR op 5 km lopen","correct":"C"},{"vraag":"Welke nieuwe hobby zou Camille kiezen?","A":"Fotografie","B":"Duiken","C":"Schilderen","D":"Koken","correct":"A"},{"vraag":"Jelle krijgt onverwacht een vrije dag. Wat doet hij waarschijnlijk?","A":"Sporten","B":"Uitslapen","C":"Afspreken met vrienden","D":"Een klus afwerken","correct":"B"},{"vraag":"Vrijstelling voor zichzelf of €1.000 voor de groepspot: wat kiest Camille?","A":"Vrijstelling","B":"€1.000 voor de groepspot","C":"Ze twijfelt tot het einde","D":"Afhankelijk van de situatie","correct":"B"}]}}};
+
+/* ================= EINDE VRAGENBLOK ================= */
+
+const params = new URLSearchParams(window.location.search);
+const rawTeam = (params.get('team') || 'A').toLowerCase();
+const teamAliases = {
+  'a':'A','familiea':'A','familie-a':'A',
+  'b':'B','familieb':'B','familie-b':'B'
+};
+const teamKey = teamAliases[rawTeam] || 'A';
+const team = OPDRACHT.teams[teamKey] || OPDRACHT.teams.A;
+let index = 0;
+
+const countdown = document.getElementById('countdown');
+const quiz = document.getElementById('quiz');
+const finish = document.getElementById('finish');
+const countNumber = document.getElementById('countNumber');
+const brand = document.getElementById('brand');
+const counter = document.getElementById('counter');
+const bar = document.getElementById('bar');
+const content = document.getElementById('content');
+const prev = document.getElementById('prev');
+const next = document.getElementById('next');
+const relay = document.getElementById('relay');
+
+brand.textContent = 'De Mol · ' + team.naam;
+
+function show(screen) {
+  countdown.classList.remove('active');
+  quiz.classList.remove('active');
+  finish.classList.remove('active');
+  screen.classList.add('active');
 }
-const canvas=document.getElementById("canvas"),ctx=canvas.getContext("2d",{willReadFrequently:true});
-const video=document.getElementById("video"),result=document.getElementById("result"),details=document.getElementById("details");
-let stream=null;
-document.getElementById("cameraBtn").onclick=async()=>{
- try{
-  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false});
-  video.srcObject=stream;video.hidden=false;document.getElementById("snapBtn").hidden=false;
- }catch(e){result.className="bad";result.textContent="Camera niet beschikbaar. Gebruik 'Foto nemen/kiezen'."}
-};
-document.getElementById("snapBtn").onclick=()=>{
- if(!video.videoWidth)return;
- canvas.width=video.videoWidth;canvas.height=video.videoHeight;ctx.drawImage(video,0,0);analyze();
-};
-document.getElementById("fileInput").onchange=e=>{
- const f=e.target.files[0];if(!f)return;const im=new Image();
- im.onload=()=>{const sc=Math.min(1,1800/im.width);canvas.width=Math.round(im.width*sc);canvas.height=Math.round(im.height*sc);ctx.drawImage(im,0,0,canvas.width,canvas.height);analyze();URL.revokeObjectURL(im.src)};
- im.src=URL.createObjectURL(f);
-};
-function gray(d,i){return .299*d[i]+.587*d[i+1]+.114*d[i+2]}
-function detectMarkers(im){
- const w=im.width,h=im.height,d=im.data,step=Math.max(1,Math.floor(w/650)),pts=[];
- // restrict to outer 18% bands to prevent text from becoming a marker
- for(let y=0;y<h;y+=step)for(let x=0;x<w;x+=step){
-  if(x>w*.22&&x<w*.78&&y>h*.22&&y<h*.78)continue;
-  const i=(y*w+x)*4;if(gray(d,i)<38)pts.push([x,y]);
- }
- if(pts.length<80)return null;
- const tl=pts.reduce((a,p)=>p[0]+p[1]<a[0]+a[1]?p:a);
- const br=pts.reduce((a,p)=>p[0]+p[1]>a[0]+a[1]?p:a);
- const tr=pts.reduce((a,p)=>p[0]-p[1]>a[0]-a[1]?p:a);
- const bl=pts.reduce((a,p)=>p[0]-p[1]<a[0]-a[1]?p:a);
- return[tl,tr,br,bl];
+
+function pulseNumber(value) {
+  countNumber.textContent = value;
+  countNumber.classList.remove('pulse');
+  void countNumber.offsetWidth;
+  countNumber.classList.add('pulse');
 }
-function solve(A,b){const n=b.length;for(let i=0;i<n;i++){let m=i;for(let r=i+1;r<n;r++)if(Math.abs(A[r][i])>Math.abs(A[m][i]))m=r;[A[i],A[m]]=[A[m],A[i]];[b[i],b[m]]=[b[m],b[i]];const p=A[i][i];if(Math.abs(p)<1e-9)throw Error();for(let c=i;c<n;c++)A[i][c]/=p;b[i]/=p;for(let r=0;r<n;r++)if(r!==i){const f=A[r][i];for(let c=i;c<n;c++)A[r][c]-=f*A[i][c];b[r]-=f*b[i]}}return b}
-function homography(src,dst){const A=[],b=[];for(let i=0;i<4;i++){const[x,y]=src[i],[u,v]=dst[i];A.push([x,y,1,0,0,0,-u*x,-u*y]);b.push(u);A.push([0,0,0,x,y,1,-v*x,-v*y]);b.push(v)}const h=solve(A,b);return[h[0],h[1],h[2],h[3],h[4],h[5],h[6],h[7],1]}
-function invert3(m){const[a,b,c,d,e,f,g,h,i]=m,A=e*i-f*h,B=-(d*i-f*g),C=d*h-e*g,D=-(b*i-c*h),E=a*i-c*g,F=-(a*h-b*g),G=b*f-c*e,H=-(a*f-c*d),I=a*e-b*d,det=a*A+b*B+c*C;return[A/det,D/det,G/det,B/det,E/det,H/det,C/det,F/det,I/det]}
-function project(m,x,y){const z=m[6]*x+m[7]*y+m[8];return[(m[0]*x+m[1]*y+m[2])/z,(m[3]*x+m[4]*y+m[5])/z]}
-function analyze(){
- result.className="";result.textContent="Bezig met analyseren...";details.textContent="";
- const im=ctx.getImageData(0,0,canvas.width,canvas.height),markers=detectMarkers(im);
- if(!markers){result.className="bad";result.textContent="Vier hoekmarkeringen niet gevonden.";return}
- const dst=[[MARK,MARK],[CARD_W-MARK,MARK],[CARD_W-MARK,CARD_H-MARK],[MARK,CARD_H-MARK]];
- let inv;try{inv=invert3(homography(markers,dst))}catch(e){result.className="bad";result.textContent="Uitlijning mislukt.";return}
- const d=im.data,w=im.width,h=im.height;let code="",confidence=[];
- for(let q=0;q<16;q++){
-  const scores=[];
-  for(let a=0;a<4;a++){
-   const[cx,cy]=qpos[q][a];let dark=0,total=0;
-   for(let yy=cy-26;yy<=cy+26;yy+=5)for(let xx=cx-26;xx<=cx+26;xx+=5){
-    const[ix,iy]=project(inv,xx,yy),X=Math.round(ix),Y=Math.round(iy);
-    if(X>=0&&X<w&&Y>=0&&Y<h){const k=(Y*w+X)*4;total++;if(gray(d,k)<115)dark++}
-   }
-   scores.push(total?dark/total:0);
+
+function feedback() {
+  if ('vibrate' in navigator) navigator.vibrate(35);
+  try {
+    relay.pause();
+    relay.currentTime = 0;
+    relay.volume = 0.85;
+    relay.play().catch(function() {});
+  } catch (error) {}
+}
+
+function render(direction) {
+  content.classList.add(direction > 0 ? 'fade-right' : 'fade-left');
+
+  window.setTimeout(function() {
+    const q = team.vragen[index];
+    const letters = ['A','B','C','D'];
+
+    content.innerHTML =
+      '<div class="kicker">Vraag ' + (index + 1) + '</div>' +
+      '<h1 class="question">' + q.vraag + '</h1>' +
+      '<div class="options">' +
+      letters.map(function(letter) {
+        return '<div class="option"><span class="letter">' + letter +
+          '</span><span>' + q[letter] + '</span></div>';
+      }).join('') +
+      '</div>';
+
+    content.classList.remove('fade-left', 'fade-right');
+    counter.textContent = (index + 1) + ' / ' + team.vragen.length;
+    bar.style.width = ((index + 1) / team.vragen.length * 100) + '%';
+    prev.disabled = index === 0;
+    next.textContent = index === team.vragen.length - 1
+      ? 'Naar eindscherm →'
+      : 'Volgende →';
+  }, 220);
+}
+
+prev.addEventListener('click', function() {
+  if (index > 0) {
+    feedback();
+    index -= 1;
+    render(-1);
   }
-  let best=0;for(let a=1;a<4;a++)if(scores[a]>scores[best])best=a;
-  const sorted=[...scores].sort((a,b)=>b-a);
-  confidence.push(sorted[0]-sorted[1]);
-  code+="ABCD"[best];
- }
- let errors=0;for(let i=0;i<16;i++)if(code[i]!==target[i])errors++;
- if(errors===0){result.className="ok";result.textContent="0 fouten!\\nAntwoordkaart correct."}
- else{result.className="bad";result.textContent=errors+" fout"+(errors===1?"":"en")+".\\nVraag een nieuwe antwoordkaart en probeer opnieuw."}
- details.textContent="Familie "+TEAM+" · gelezen reeks: "+code+" · verwacht: "+target;
+});
+
+next.addEventListener('click', function() {
+  feedback();
+  if (index < team.vragen.length - 1) {
+    index += 1;
+    render(1);
+  } else {
+    show(finish);
+  }
+});
+
+document.getElementById('back').addEventListener('click', function() {
+  feedback();
+  index = team.vragen.length - 1;
+  show(quiz);
+  render(-1);
+});
+
+document.getElementById('decoder').addEventListener('click', function() {
+  feedback();
+  const separator = OPDRACHT.decoder_url.includes('?') ? '&' : '?';
+  window.location.href = OPDRACHT.decoder_url + separator + 'team=' + encodeURIComponent(teamKey);
+});
+
+function beginCountdown() {
+  pulseNumber('3');
+
+  window.setTimeout(function() {
+    pulseNumber('2');
+
+    window.setTimeout(function() {
+      pulseNumber('1');
+
+      window.setTimeout(function() {
+        pulseNumber('START');
+
+        window.setTimeout(function() {
+          show(quiz);
+          render(1);
+        }, 650);
+      }, 1000);
+    }, 1000);
+  }, 1000);
 }
+
+window.addEventListener('DOMContentLoaded', beginCountdown);
 </script>
-</body></html>
+</body>
+</html>
